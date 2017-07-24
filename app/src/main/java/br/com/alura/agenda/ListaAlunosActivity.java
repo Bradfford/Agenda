@@ -91,7 +91,7 @@ public class ListaAlunosActivity extends AppCompatActivity {
                 new EnviaAlunosTask(this).execute();
                 break;
             case R.id.baixar_provas:
-                Intent irParaProvas = new Intent(this, ProvasTabletActivity.class);
+                Intent irParaProvas = new Intent(this, ProvasActivity.class);
                 startActivity(irParaProvas);
                 break;
         }

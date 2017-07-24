@@ -1,6 +1,8 @@
 package br.com.alura.agenda;
 
 import android.content.Intent;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -23,29 +25,41 @@ public class ProvasActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_provas);
 
-        List<String> topicosPortugues = Arrays.asList("Sujeito", "Objeto Direto", "Objeto Indireto");
-        Prova provaPortugues = new Prova("Português", "05/05/2017", topicosPortugues);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
 
-        List<String> topicosMatematica = Arrays.asList("Equações de segundo grau", "Trigonometria");
-        Prova provaMatematica = new Prova("Matemática", "06/05/2017", topicosMatematica);
+        transaction.replace(R.id.frame_principal, new ListaProvasFragment());
+        if(isModoPaisagem()){
+            transaction.replace(R.id.frame_secundario, new DetalhesProvaFragment());
+        }
 
-        List<Prova> provas = Arrays.asList(provaPortugues, provaMatematica);
+        transaction.commit();
+    }
 
-        ArrayAdapter<Prova> adapter = new ArrayAdapter<Prova>(this, android.R.layout.simple_list_item_1, provas);
+    private boolean isModoPaisagem() {
+        //foram criados dois arquivos "bools" de mesmo nome na pasta values, um com parametro true e outro false.
+        // o device usará o arquivo conforme a orientação do mesmo.
+        return getResources().getBoolean(R.bool.modoPaisagem);
+    }
 
-        ListView lista = (ListView) findViewById(R.id.provas_lista);
-        lista.setAdapter(adapter);
+    public void selecionaProva(Prova prova) {
+        FragmentManager manager = getSupportFragmentManager();
+        if(!isModoPaisagem()){
+            FragmentTransaction transaction = manager.beginTransaction();
 
-        lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Prova prova = (Prova) parent.getItemAtPosition(position);
-                Toast.makeText(ProvasActivity.this, "Clicou na prova de " + prova, Toast.LENGTH_SHORT).show();
-                Intent irParaDetalhes = new Intent(ProvasActivity.this, DetalhesProvaActivity.class);
-                irParaDetalhes.putExtra("prova", prova);
-                startActivity(irParaDetalhes);
-            }
-        });
+            DetalhesProvaFragment detalhesFragment = new DetalhesProvaFragment();
+            Bundle parametros = new Bundle();
+            parametros.putSerializable("prova", prova);
 
+            detalhesFragment.setArguments(parametros);
+
+            transaction.replace(R.id.frame_principal, detalhesFragment);
+            transaction.addToBackStack(null);
+            transaction.commit();
+        } else {
+            DetalhesProvaFragment detalhesProvaFragment =
+                    (DetalhesProvaFragment) manager.findFragmentById(R.id.frame_secundario);
+            detalhesProvaFragment.popularCamposCom(prova);
+        }
     }
 }
