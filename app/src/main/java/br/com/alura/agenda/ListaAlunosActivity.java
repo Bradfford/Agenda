@@ -90,6 +90,10 @@ public class ListaAlunosActivity extends AppCompatActivity {
             case R.id.menu_enviar_notas:
                 new EnviaAlunosTask(this).execute();
                 break;
+            case R.id.baixar_provas:
+                Intent irParaProvas = new Intent(this, ProvasTabletActivity.class);
+                startActivity(irParaProvas);
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
